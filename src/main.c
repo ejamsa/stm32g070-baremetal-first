@@ -3,7 +3,6 @@
 int main(void) {
   uint16_t led = PIN('A', 5);
 
-
   gpio_set_mode(PIN('A', 2), GPIO_MODE_AF);
   gpio_set_af(PIN('A', 2), 1U);
 
@@ -20,8 +19,8 @@ int main(void) {
     if (isTimerTick(&timer, period)) {
       gpio_write(led, on);
 
-      /*if (on) uart_write_string(USART2, "It's ON!\n\r", 10);*/
-      /*else uart_write_string(USART2, "It's OFF!\n\r", 11);*/
+      if (on) uart_write_string(USART2, "It's ON!\n\r", 10);
+      else uart_write_string(USART2, "It's OFF!\n\r", 11);
       on = !on;
     }
 

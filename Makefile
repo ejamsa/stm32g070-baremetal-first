@@ -2,8 +2,8 @@ CC = arm-none-eabi-gcc
 CFLAGS  ?=  -W -Wall -Wextra -Werror -Wundef -Wshadow -Wdouble-promotion \
             -Wformat-truncation -fno-common -Wconversion \
             -g3 -O0 -ffunction-sections -fdata-sections -I. \
-            -mcpu=cortex-m0 -mthumb $(EXTRA_CFLAGS)
-LDFLAGS ?= -Tlinker_script.ld -nostartfiles -nostdlib --specs nano.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map
+            -mcpu=cortex-m0plus -mthumb -mfloat-abi=soft $(EXTRA_CFLAGS)
+LDFLAGS ?= -Tlinker_script.ld -mcpu=cortex-m0plus -nostartfiles -nostdlib --specs nano.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map
 OBJS = main.o 
 OUTPUT_DIR = out
 OUTPUT_FILENAME = firmware
