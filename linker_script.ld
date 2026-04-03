@@ -13,7 +13,6 @@ SECTIONS {
 
   .data : {
     _sdata = .;   /* .data section start */
-    *(.first_data)
     *(.data SORT(.data.*))
     _edata = .;  /* .data section end */
   } > sram AT > flash
@@ -26,5 +25,4 @@ SECTIONS {
   } > sram
 
   . = ALIGN(8);
-  _end = .;     /* for cmsis_gcc.h  */
 }
