@@ -1,4 +1,19 @@
 #include "hal.h"
+#include "i2c.h"
+
+static volatile uint32_t s_ticks; 
+void SysTick_Handler(void) {
+  s_ticks++;
+}
+
+bool isTimerTick(uint32_t *timer, uint32_t period) {
+  if (s_ticks + period < *timer) *timer = 0;
+  if (*timer == 0) *timer = s_ticks + period;
+  if (*timer > s_ticks) return false;
+
+  *timer = (s_ticks - *timer) > period ? s_ticks + period : *timer + period;
+  return true;
+}
 
 int main(void) {
   uint16_t led = PIN('A', 5);
@@ -11,7 +26,8 @@ int main(void) {
   systick_init(16000000 / 1000);
 
   gpio_set_mode(led, GPIO_MODE_OUTPUT);
-
+  i2c_init();
+  
   uint32_t period = 1000, timer = 0;
   bool on = true;
   
@@ -44,5 +60,6 @@ extern void _estack(void);  // Defined in link.ld
 // 16 standard and 32 STM32-specific handlers
 // PM0223 2.3.4
 __attribute__((section(".vectors"))) void (*const tab[16 + 32])(void) = {
-    _estack, _reset, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SysTick_Handler
+    _estack, _reset, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SysTick_Handler,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, I2C1_Global_Interrupt
 };

@@ -1,3 +1,6 @@
+#ifndef HAL_H
+#define HAL_H
+
 #include <inttypes.h>
 #include <stdbool.h>
 
@@ -68,20 +71,6 @@ static inline void systick_init(uint32_t ticks) {
   RCC-> APBENR2 = 0x1U;
 }
 
-static volatile uint32_t s_ticks; 
-void SysTick_Handler(void) {
-  s_ticks++;
-}
-
-bool isTimerTick(uint32_t *timer, uint32_t period) {
-  if (s_ticks + period < *timer) *timer = 0;
-  if (*timer == 0) *timer = s_ticks + period;
-  if (*timer > s_ticks) return false;
-
-  *timer = (s_ticks - *timer) > period ? s_ticks + period : *timer + period;
-  return true;
-}
-
 static inline void uart_init(struct usart *uart, unsigned long baud_rate) {
   // USART default clock is PCLK.
   // PCLK is APB clock with prescaler set to 1.
@@ -112,4 +101,5 @@ static inline void uart_write_string(struct usart *uart, char *text, int len) {
   while(len-- > 0) uart_write_byte(uart, *((uint8_t *)text++));
 }
 
+#endif
 
