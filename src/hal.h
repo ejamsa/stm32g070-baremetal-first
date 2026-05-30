@@ -9,6 +9,10 @@
 #define PINNO(pin) (pin & 255)
 #define PINBANK(pin) (pin >> 8)
 
+extern volatile uint32_t s_ticks;
+
+#define NVIC_ISER ((uint32_t *) 0xE000E100)
+
 struct systick {
   volatile uint32_t CSR, RVR, CVR, CALIB;
 };
@@ -43,6 +47,15 @@ static inline void gpio_set_mode(uint16_t pin, uint8_t mode) {
 
   gpio->MODER &= ~(3U << (n * 2));         // Clear existing setting
   gpio->MODER |= (mode & 3U) << (n * 2);   // Set new mode
+}
+
+enum { GPIO_PUPD_NO, GPIO_PUPD_PU, GPIO_PUPD_PD };
+static inline void gpio_set_pupd(uint16_t pin, uint8_t pupd) {
+  struct gpio *gpio = GPIO(PINBANK(pin));
+  int n = PINNO(pin);
+
+  gpio->PUPDR &= ~(3U << (n * 2));
+  gpio->PUPDR |= (pupd & 3U) << (n * 2);
 }
 
 static inline void gpio_set_af(uint16_t pin, uint8_t af_num) {

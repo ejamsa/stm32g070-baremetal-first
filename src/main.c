@@ -1,7 +1,8 @@
 #include "hal.h"
 #include "i2c.h"
+#include "exti.h"
 
-static volatile uint32_t s_ticks; 
+volatile uint32_t s_ticks;
 void SysTick_Handler(void) {
   s_ticks++;
 }
@@ -30,16 +31,45 @@ int main(void) {
   
   uint32_t period = 1000, timer = 0;
   bool on = true;
+
+  /*i2c_read_at_beginning();*/
+  spin(50000);
+  /*unsigned char onCounter = i2c_get_last_read_byte();*/
+  /*volatile unsigned char test1 = 0;*/
+
+  configureExtiForButtons();
   
+  uint16_t red = PIN('A', 6);
+  gpio_set_mode(red, GPIO_MODE_OUTPUT);
+
+  uint16_t yellow = PIN('A', 7);
+  gpio_set_mode(yellow, GPIO_MODE_OUTPUT);
+
+  uint16_t green = PIN('A', 8);
+  gpio_set_mode(green, GPIO_MODE_OUTPUT);
+ 
   while (1) {
     if (isTimerTick(&timer, period)) {
       gpio_write(led, on);
 
-      if (on) uart_write_string(USART2, "It's ON!\n\r", 10);
-      else uart_write_string(USART2, "It's OFF!\n\r", 11);
-      on = !on;
-    }
+      if (on) {
+        /*onCounter++;*/
+        uart_write_string(USART2, "It's ON!\n\r", 10);
+        /*i2c_write_byte(onCounter);*/
+      } else {
+        uart_write_string(USART2, "It's OFF!\n\r", 11);
+        /*i2c_read_at_beginning();*/
+      }
 
+      gpio_write(red, isRedOn());
+      gpio_write(yellow, isYellowOn());
+      gpio_write(green, isGreenOn());
+
+      on = !on;
+      /*test1 = i2c_get_last_read_byte();*/
+    }
+  
+  /*if (test1){};*/
   }
   return 0;
 }
@@ -61,5 +91,5 @@ extern void _estack(void);  // Defined in link.ld
 // PM0223 2.3.4
 __attribute__((section(".vectors"))) void (*const tab[16 + 32])(void) = {
     _estack, _reset, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SysTick_Handler,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, I2C1_Global_Interrupt
+    0, 0, 0, 0, 0, 0, 0, EXTI4_15_Handler, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, I2C1_Global_Interrupt
 };

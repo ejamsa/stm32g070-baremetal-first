@@ -4,7 +4,7 @@ CFLAGS  ?=  -W -Wall -Wextra -Werror -Wundef -Wshadow -Wdouble-promotion \
             -g3 -O0 -ffunction-sections -fdata-sections -I. \
             -mcpu=cortex-m0plus -mthumb -mfloat-abi=soft $(EXTRA_CFLAGS)
 LDFLAGS ?= -Tlinker_script.ld -mcpu=cortex-m0plus -nostartfiles -nostdlib --specs nano.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map
-OBJS = i2c.o main.o
+OBJS = exti.o i2c.o main.o
 OUTPUT_DIR = out
 OUTPUT_FILENAME = firmware
 ELFFILE = $(OUTPUT_FILENAME).elf
@@ -18,8 +18,9 @@ vpath %.h src
 
 build: $(OUTPUT_FILENAME).bin
 
-main.c: hal.h i2c.h
-i2c.c: i2c.h
+main.c: hal.h i2c.h exti.h
+i2c.c: i2c.h hal.h
+exti.c: exti.h hal.h
 
 firmware.elf: $(OBJS)
 	arm-none-eabi-gcc $^ $(LDFLAGS) -o $@
